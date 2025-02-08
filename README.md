@@ -122,27 +122,6 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      });
      ```
 
-   - **carts table:**
-     ```php
-     Schema::create('carts', function (Blueprint $table) {
-         $table->id();
-         $table->foreignId('user_id')->nullable();  // Links to the user who owns the cart; nullable for guest carts
-         $table->string('session_id')->nullable();  // Unique identifier for guest user sessions
-         $table->timestamps();
-     });
-     ```
-
-   - **cart_items table:**
-     ```php
-     Schema::create('cart_items', function (Blueprint $table) {
-         $table->id();
-         $table->foreignId('cart_id')->constrained()->cascadeOnDelete();  // Links to the cart the item belongs to
-         $table->foreignId('product_variant_id')->constrained()->cascadeOnDelete();  // Specifies the product variant added to the cart
-         $table->integer('quantity');  // Number of items added to the cart
-         $table->timestamps();
-     });
-     ```
-
    - **images table:**
      ```php
      Schema::create('images', function (Blueprint $table) {
@@ -154,7 +133,9 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      });
      ```
 
-3. **Define the model factories:**
+---
+
+### **4. Define the model factories:**
 
    - Factories generate fake data for seeding the database.
 
@@ -224,7 +205,9 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
    }
    ```
 
-4. **Define the relationships in models:**
+---
+
+### **5. Define the relationships in models:**
 
    Example for `Product` model:
    ```php
@@ -251,7 +234,9 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
    }
    ```
 
-5. **Define the seeder logic:**
+---
+
+### **6. Define the seeder logic:**
 
    Example for `DatabaseSeeder`:
    ```php
@@ -259,8 +244,6 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
 
    use App\Models\Product;
    use App\Models\ProductVariant;
-   use App\Models\Cart;
-   use App\Models\CartItem;
    use App\Models\Image;
    use Illuminate\Database\Seeder;
 
@@ -273,16 +256,13 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
                ProductVariant::factory(3)->create(['product_id' => $product->id]);
                Image::factory(2)->create(['product_id' => $product->id]);
            });
-
-           // Seed carts with items
-           Cart::factory(5)->create()->each(function ($cart) {
-               CartItem::factory(2)->create(['cart_id' => $cart->id]);
-           });
        }
    }
    ```
 
-6. **Run the seeders:**
+---
+
+### **7. Run the seeders:**
 
    ```bash
    php artisan db:seed
