@@ -104,11 +104,11 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      ```php
      Schema::create('products', function (Blueprint $table) {
          $table->id();
-         $table->string('name');  // Product name
-         $table->decimal('price', 8, 2);  // Product price with two decimal places
-         $table->foreignId('main_image_id')->nullable();  // Reference to the main image
-         $table->text('description')->nullable();  // Product description
-         $table->timestamps();  // Created and updated timestamps
+         $table->string('name');  // Product name, used to identify the item.
+         $table->decimal('price', 8, 2);  // Product price with two decimal places, used for pricing.
+         $table->foreignId('main_image_id')->nullable();  // Reference to the main image of the product.
+         $table->text('description')->nullable();  // Detailed description of the product.
+         $table->timestamps();  // Tracks creation and update times.
      });
      ```
 
@@ -116,10 +116,10 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      ```php
      Schema::create('product_variants', function (Blueprint $table) {
          $table->id();
-         $table->foreignId('product_id')->constrained()->cascadeOnDelete();  // Foreign key to products table
-         $table->string('color')->nullable();  // Variant color
-         $table->string('size')->nullable();  // Variant size
-         $table->timestamps();
+         $table->foreignId('product_id')->constrained()->cascadeOnDelete();  // Links the variant to a specific product.
+         $table->string('color')->nullable();  // Color attribute for product variations.
+         $table->string('size')->nullable();  // Size attribute for product variations.
+         $table->timestamps();  // Tracks creation and update times.
      });
      ```
 
@@ -127,9 +127,9 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      ```php
      Schema::create('carts', function (Blueprint $table) {
          $table->id();
-         $table->foreignId('user_id')->nullable();  // Associated user (optional)
-         $table->string('session_id')->nullable();  // Session identifier for guest users
-         $table->timestamps();
+         $table->foreignId('user_id')->nullable();  // Stores the ID of the user who owns the cart, if logged in.
+         $table->string('session_id')->nullable();  // Unique identifier for guest users without accounts.
+         $table->timestamps();  // Tracks creation and update times.
      });
      ```
 
@@ -137,10 +137,10 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      ```php
      Schema::create('cart_items', function (Blueprint $table) {
          $table->id();
-         $table->foreignId('cart_id')->constrained()->cascadeOnDelete();  // Foreign key to carts table
-         $table->foreignId('product_variant_id')->constrained()->cascadeOnDelete();  // Foreign key to product_variants table
-         $table->integer('quantity');  // Number of items in the cart
-         $table->timestamps();
+         $table->foreignId('cart_id')->constrained()->cascadeOnDelete();  // Links the item to a specific cart.
+         $table->foreignId('product_variant_id')->constrained()->cascadeOnDelete();  // Specifies which variant of the product is added to the cart.
+         $table->integer('quantity');  // Quantity of the product variant added to the cart.
+         $table->timestamps();  // Tracks creation and update times.
      });
      ```
 
@@ -148,9 +148,9 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      ```php
      Schema::create('images', function (Blueprint $table) {
          $table->id();
-         $table->foreignId('product_id')->constrained()->cascadeOnDelete();  // Foreign key to products table
-         $table->string('path');  // Path to the image file
-         $table->timestamps();
+         $table->foreignId('product_id')->constrained()->cascadeOnDelete();  // Associates the image with a specific product.
+         $table->string('path');  // File path to the image resource.
+         $table->timestamps();  // Tracks creation and update times.
      });
      ```
 
