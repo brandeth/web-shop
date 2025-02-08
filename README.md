@@ -10,7 +10,7 @@ Reference: [Laravel Installation Documentation](https://laravel.com/docs/11.x/in
    composer create-project laravel/laravel web-shop
    ```
 
-   - Creates a new Laravel project named `web-shop`. Composer handles all dependencies automatically.
+   - Creates a new Laravel project named `web-shop`. Composer handles all dependencies automatically by downloading necessary packages.
 
 2. **Navigate to the project directory:**
 
@@ -18,7 +18,7 @@ Reference: [Laravel Installation Documentation](https://laravel.com/docs/11.x/in
    cd web-shop
    ```
 
-   - Change your working directory to the newly created Laravel project.
+   - Changes the current working directory to the newly created Laravel project.
 
 3. **Start the development server:**
 
@@ -26,7 +26,7 @@ Reference: [Laravel Installation Documentation](https://laravel.com/docs/11.x/in
    php artisan serve
    ```
 
-   - Starts the local development server at `http://localhost:8000`.
+   - Starts the built-in PHP development server at `http://localhost:8000` for testing and development.
 
 4. **Verify installation:**
 
@@ -47,7 +47,7 @@ Reference: [Jetstream Installation Documentation](https://jetstream.laravel.com/
    composer require laravel/jetstream
    ```
 
-   - Installs Jetstream, which provides scaffolding for authentication and features like teams and API support.
+   - Installs the Jetstream package, which provides scaffolding for features like authentication and user profile management.
 
 2. **Install the Livewire stack:**
 
@@ -55,7 +55,7 @@ Reference: [Jetstream Installation Documentation](https://jetstream.laravel.com/
    php artisan jetstream:install livewire
    ```
 
-   - Installs the Livewire stack for dynamic, reactive front-end interactions without needing a full SPA framework.
+   - Configures Jetstream to use Livewire, enabling reactive front-end components.
 
 3. **Run the migrations:**
 
@@ -63,7 +63,7 @@ Reference: [Jetstream Installation Documentation](https://jetstream.laravel.com/
    php artisan migrate
    ```
 
-   - Applies database changes based on migration files to set up tables and relationships.
+   - Creates necessary database tables by applying the migration files.
 
 4. **Install frontend dependencies:**
 
@@ -71,7 +71,7 @@ Reference: [Jetstream Installation Documentation](https://jetstream.laravel.com/
    npm install && npm run dev
    ```
 
-   - Installs Node.js packages and compiles frontend assets using Laravel Mix.
+   - Installs Node.js packages and compiles front-end assets using Laravel Mix.
 
 5. **Verify the setup:**
 
@@ -96,18 +96,18 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
    php artisan make:model Image -m -f
    ```
 
-   - Generates model, migration, and factory files for each entity.
+   - Generates models along with migration and factory files for each entity.
 
 2. **Define the table columns in the migration files:**
 
    - **products table:**
      ```php
      Schema::create('products', function (Blueprint $table) {
-         $table->id();
-         $table->string('name');  // Product name, used to identify the item.
-         $table->decimal('price', 8, 2);  // Product price with two decimal places, used for pricing.
-         $table->text('description')->nullable();  // Detailed description of the product.
-         $table->timestamps();  // Tracks creation and update times.
+         $table->id();  // Primary key
+         $table->string('name');  // Name of the product
+         $table->decimal('price', 8, 2);  // Price of the product with two decimal points for currency precision
+         $table->text('description')->nullable();  // Optional product description
+         $table->timestamps();  // Automatically manages created_at and updated_at timestamps
      });
      ```
 
@@ -115,10 +115,10 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      ```php
      Schema::create('product_variants', function (Blueprint $table) {
          $table->id();
-         $table->foreignId('product_id')->constrained()->cascadeOnDelete();  // Links the variant to a specific product.
-         $table->string('color');  // Color attribute for product variations.
-         $table->string('size');  // Size attribute for product variations.
-         $table->timestamps();  // Tracks creation and update times.
+         $table->foreignId('product_id')->constrained()->cascadeOnDelete();  // Links to the parent product and deletes variants if the product is deleted
+         $table->string('color');  // Product color variant
+         $table->string('size');  // Product size variant
+         $table->timestamps();
      });
      ```
 
@@ -126,9 +126,9 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      ```php
      Schema::create('carts', function (Blueprint $table) {
          $table->id();
-         $table->foreignId('user_id')->nullable();  // Stores the ID of the user who owns the cart, if logged in.
-         $table->string('session_id')->nullable();  // Unique identifier for guest users without accounts.
-         $table->timestamps();  // Tracks creation and update times.
+         $table->foreignId('user_id')->nullable();  // Links to the user who owns the cart; nullable for guest carts
+         $table->string('session_id')->nullable();  // Unique identifier for guest user sessions
+         $table->timestamps();
      });
      ```
 
@@ -136,10 +136,10 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      ```php
      Schema::create('cart_items', function (Blueprint $table) {
          $table->id();
-         $table->foreignId('cart_id')->constrained()->cascadeOnDelete();  // Links the item to a specific cart.
-         $table->foreignId('product_variant_id')->constrained()->cascadeOnDelete();  // Specifies which variant of the product is added to the cart.
-         $table->integer('quantity');  // Quantity of the product variant added to the cart.
-         $table->timestamps();  // Tracks creation and update times.
+         $table->foreignId('cart_id')->constrained()->cascadeOnDelete();  // Links to the cart the item belongs to
+         $table->foreignId('product_variant_id')->constrained()->cascadeOnDelete();  // Specifies the product variant added to the cart
+         $table->integer('quantity');  // Number of items added to the cart
+         $table->timestamps();
      });
      ```
 
@@ -147,17 +147,16 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      ```php
      Schema::create('images', function (Blueprint $table) {
          $table->id();
-         $table->foreignId('product_id')->constrained()->cascadeOnDelete();  // Associates the image with a specific product.
-         $table->string('path');  // File path to the image resource.
-         $table->boolean('featured')->default(false);  // Indicates if the image is the featured image.
-         $table->timestamps();  // Tracks creation and update times.
+         $table->foreignId('product_id')->constrained()->cascadeOnDelete();  // Associates the image with a specific product
+         $table->string('path');  // Path to the image file
+         $table->boolean('featured')->default(false);  // Indicates if the image is a featured product image
+         $table->timestamps();
      });
      ```
 
 3. **Define the model factories:**
 
-   - Each model's factory is responsible for generating sample data for seeding the database.
-   - Factories define default values for the fields and relationships of the models.
+   - Factories generate fake data for seeding the database.
 
    Example for `ProductFactory`:
    ```php
@@ -173,9 +172,9 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
        public function definition()
        {
            return [
-               'name' => fake()->word(),  // Generate commerce-related names.
-               'price' => fake()->randomFloat(2, 10, 1000),
-               'description' => fake()->paragraph(),
+               'name' => fake()->word(),  // Generates a random product name
+               'price' => fake()->randomFloat(2, 10, 1000),  // Random price between 10 and 1000 with two decimal places
+               'description' => fake()->paragraph(),  // Random product description
            ];
        }
    }
@@ -195,9 +194,9 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
        public function definition()
        {
            return [
-               'product_id' => Product::factory(),
-               'color' => fake()->safeColorName(),
-               'size' => fake()->randomElement(['Small', 'Medium', 'Large']),
+               'product_id' => Product::factory(),  // Automatically associates a product variant with a product
+               'color' => fake()->safeColorName(),  // Random safe color name
+               'size' => fake()->randomElement(['Small', 'Medium', 'Large']),  // Random size selection
            ];
        }
    }
@@ -217,9 +216,9 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
        public function definition()
        {
            return [
-               'product_id' => Product::factory(),
-               'path' => fake()->imageUrl(),
-               'featured' => fake()->boolean(20),
+               'product_id' => Product::factory(),  // Automatically associates the image with a product
+               'path' => fake()->imageUrl(),  // Generates a random image URL
+               'featured' => fake()->boolean(20),  // 20% chance to be a featured image
            ];
        }
    }
@@ -238,16 +237,16 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
    {
        use HasFactory;
 
-       protected $fillable = ['name', 'price', 'description'];
+       protected $fillable = ['name', 'price', 'description'];  // Mass assignable attributes
 
        public function images()
        {
-           return $this->hasMany(Image::class);
+           return $this->hasMany(Image::class);  // Defines a one-to-many relationship with the Image model
        }
 
        public function variants()
        {
-           return $this->hasMany(ProductVariant::class);
+           return $this->hasMany(ProductVariant::class);  // Defines a one-to-many relationship with the ProductVariant model
        }
    }
    ```
@@ -269,11 +268,13 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
    {
        public function run()
        {
+           // Seed products with variants and images
            Product::factory(10)->create()->each(function ($product) {
                ProductVariant::factory(3)->create(['product_id' => $product->id]);
                Image::factory(2)->create(['product_id' => $product->id]);
            });
 
+           // Seed carts with items
            Cart::factory(5)->create()->each(function ($cart) {
                CartItem::factory(2)->create(['cart_id' => $cart->id]);
            });
@@ -287,16 +288,4 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
    php artisan db:seed
    ```
 
-   - Populates the database with sample data based on the defined factories and relationships.
-
----
-
-### **Troubleshooting Tips:**
-
-- If you encounter issues with `npm install`, ensure you have Node.js installed by running `node -v`.
-- Check `.env` for correct database configuration before migrating.
-- If a migration fails, check the migration files for errors or missing relationships.
-- Use `php artisan tinker` to test relationships and data generation from factories.
-
----
-
+   - Executes the `DatabaseSeeder` class to populate the database with sample data based on the defined factories.
