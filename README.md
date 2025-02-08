@@ -106,7 +106,6 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
          $table->id();
          $table->string('name');  // Product name, used to identify the item.
          $table->decimal('price', 8, 2);  // Product price with two decimal places, used for pricing.
-         $table->foreignId('main_image_id')->nullable();  // Reference to the main image of the product.
          $table->text('description')->nullable();  // Detailed description of the product.
          $table->timestamps();  // Tracks creation and update times.
      });
@@ -150,17 +149,132 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
          $table->id();
          $table->foreignId('product_id')->constrained()->cascadeOnDelete();  // Associates the image with a specific product.
          $table->string('path');  // File path to the image resource.
+         $table->boolean('featured')->default(false);  // Indicates if the image is the featured image.
          $table->timestamps();  // Tracks creation and update times.
      });
      ```
 
-3. **Run the migrations to create the tables:**
+3. **Define the model factories:**
 
-   ```bash
-   php artisan migrate
+   - Each model's factory is responsible for generating sample data for seeding the database.
+   - Factories define default values for the fields and relationships of the models.
+
+   Example for `ProductFactory`:
+   ```php
+   namespace Database\Factories;
+
+   use App\Models\Product;
+   use Illuminate\Database\Eloquent\Factories\Factory;
+
+   class ProductFactory extends Factory
+   {
+       protected $model = Product::class;
+
+       public function definition()
+       {
+           return [
+               'name' => $this->faker->word,
+               'price' => $this->faker->randomFloat(2, 10, 1000),
+               'description' => $this->faker->paragraph,
+           ];
+       }
+   }
    ```
 
-   - Creates the tables in your database as defined in the migration files.
+   Example for `ImageFactory`:
+   ```php
+   namespace Database\Factories;
+
+   use App\Models\Image;
+   use Illuminate\Database\Eloquent\Factories\Factory;
+
+   class ImageFactory extends Factory
+   {
+       protected $model = Image::class;
+
+       public function definition()
+       {
+           return [
+               'product_id' => App\Models\Product::factory(),  // Create and link a product
+               'path' => $this->faker->imageUrl(),  // Generate a random image URL
+               'featured' => $this->faker->boolean(20),  // 20% chance to be featured
+           ];
+       }
+   }
+   ```
+
+   - Update each factory to reflect relationships, such as linking `product_id` fields in related models.
+
+4. **Define the relationships in models:**
+
+   Example for `Product` model:
+   ```php
+   namespace App\Models;
+
+   use Illuminate\Database\Eloquent\Factories\HasFactory;
+   use Illuminate\Database\Eloquent\Model;
+
+   class Product extends Model
+   {
+       use HasFactory;
+
+       protected $fillable = ['name', 'price', 'description'];
+
+       // Define relationship with images
+       public function images()
+       {
+           return $this->hasMany(Image::class);
+       }
+
+       // Define relationship with product variants
+       public function variants()
+       {
+           return $this->hasMany(ProductVariant::class);
+       }
+   }
+   ```
+
+5. **Define the seeder logic:**
+
+   Example for `DatabaseSeeder`:
+   ```php
+   namespace Database\Seeders;
+
+   use App\Models\Product;
+   use App\Models\ProductVariant;
+   use App\Models\Cart;
+   use App\Models\CartItem;
+   use App\Models\Image;
+   use Illuminate\Database\Seeder;
+
+   class DatabaseSeeder extends Seeder
+   {
+       public function run()
+       {
+           // Seed products with variants and images
+           Product::factory(10)->create()->each(function ($product) {
+               // Add variants to each product
+               ProductVariant::factory(3)->create(['product_id' => $product->id]);
+               
+               // Add images to each product
+               Image::factory(2)->create(['product_id' => $product->id]);
+           });
+
+           // Seed carts with items
+           Cart::factory(5)->create()->each(function ($cart) {
+               CartItem::factory(2)->create(['cart_id' => $cart->id]);
+           });
+       }
+   }
+   ```
+
+6. **Run the seeders:**
+
+   ```bash
+   php artisan db:seed
+   ```
+
+   - Populates the database with sample data based on the defined factories and relationships.
 
 ---
 
@@ -169,6 +283,7 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
 - If you encounter issues with `npm install`, ensure you have Node.js installed by running `node -v`.
 - Check `.env` for correct database configuration before migrating.
 - If a migration fails, check the migration files for errors or missing relationships.
+- Use `php artisan tinker` to test relationships and data generation from factories.
 
 ---
 
