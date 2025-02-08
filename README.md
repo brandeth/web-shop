@@ -116,8 +116,8 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
      Schema::create('product_variants', function (Blueprint $table) {
          $table->id();
          $table->foreignId('product_id')->constrained()->cascadeOnDelete();  // Links the variant to a specific product.
-         $table->string('color')->nullable();  // Color attribute for product variations.
-         $table->string('size')->nullable();  // Size attribute for product variations.
+         $table->string('color');  // Color attribute for product variations.
+         $table->string('size');  // Size attribute for product variations.
          $table->timestamps();  // Tracks creation and update times.
      });
      ```
@@ -173,9 +173,31 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
        public function definition()
        {
            return [
-               'name' => $this->faker->word,
-               'price' => $this->faker->randomFloat(2, 10, 1000),
-               'description' => $this->faker->paragraph,
+               'name' => fake()->word(),  // Generate commerce-related names.
+               'price' => fake()->randomFloat(2, 10, 1000),
+               'description' => fake()->paragraph(),
+           ];
+       }
+   }
+   ```
+
+   Example for `ProductVariantFactory`:
+   ```php
+   namespace Database\Factories;
+
+   use App\Models\ProductVariant;
+   use Illuminate\Database\Eloquent\Factories\Factory;
+
+   class ProductVariantFactory extends Factory
+   {
+       protected $model = ProductVariant::class;
+
+       public function definition()
+       {
+           return [
+               'product_id' => Product::factory(),
+               'color' => fake()->safeColorName(),
+               'size' => fake()->randomElement(['Small', 'Medium', 'Large']),
            ];
        }
    }
@@ -195,15 +217,13 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
        public function definition()
        {
            return [
-               'product_id' => App\Models\Product::factory(),  // Create and link a product
-               'path' => $this->faker->imageUrl(),  // Generate a random image URL
-               'featured' => $this->faker->boolean(20),  // 20% chance to be featured
+               'product_id' => Product::factory(),
+               'path' => fake()->imageUrl(),
+               'featured' => fake()->boolean(20),
            ];
        }
    }
    ```
-
-   - Update each factory to reflect relationships, such as linking `product_id` fields in related models.
 
 4. **Define the relationships in models:**
 
@@ -220,13 +240,11 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
 
        protected $fillable = ['name', 'price', 'description'];
 
-       // Define relationship with images
        public function images()
        {
            return $this->hasMany(Image::class);
        }
 
-       // Define relationship with product variants
        public function variants()
        {
            return $this->hasMany(ProductVariant::class);
@@ -251,16 +269,11 @@ Reference: [Laravel Models Documentation](https://laravel.com/docs/11.x/eloquent
    {
        public function run()
        {
-           // Seed products with variants and images
            Product::factory(10)->create()->each(function ($product) {
-               // Add variants to each product
                ProductVariant::factory(3)->create(['product_id' => $product->id]);
-               
-               // Add images to each product
                Image::factory(2)->create(['product_id' => $product->id]);
            });
 
-           // Seed carts with items
            Cart::factory(5)->create()->each(function ($cart) {
                CartItem::factory(2)->create(['cart_id' => $cart->id]);
            });
